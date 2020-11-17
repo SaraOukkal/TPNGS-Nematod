@@ -22,5 +22,5 @@ SRR5564869"
 ###For loop to download data from each SRR: 
 for i in $SRR
 do 
-fastq-dump --split-3 --gzip -X 100000 --defline-seq '@$ac_$si/$ri' --defline-qual "+" $i 
+fastq-dump --split-3 --gzip --defline-seq '@$ac_$si/$ri' --defline-qual "+" $i 
 done
