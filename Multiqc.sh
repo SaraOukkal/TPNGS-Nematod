@@ -16,4 +16,3 @@ multiqc $data/* -o .
 end=$SECONDS
 Time=$(((end - start)/60))
 echo "$file $Time" >> $time_files/time_multiqc.txt
-done

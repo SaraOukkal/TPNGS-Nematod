@@ -40,4 +40,3 @@ multiqc $data_2/* -o .
 end=$SECONDS
 Time=$(((end - start)/60))
 echo "$file $Time" >> $time_files/time_multiqc_trim.txt
-done
