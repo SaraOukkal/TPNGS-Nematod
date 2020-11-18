@@ -38,6 +38,7 @@ Use **Multiqc.sh** (use on Fastqc directory output, one report for all samples).
 ```{bash, eval=FALSE}
 multiqc $data/* -o . 
 ```
+
 ##Results: 
 *Ajouter captures du rapport multiqc*
 
@@ -69,7 +70,7 @@ Ajouter rapport multiQC
 ### Get the reference transcriptome:
 Download the reference transcriptome of *C.elegans*: `https://www.ensembl.org/info/data/ftp/index.html`
 
-Use the wget command with this link:  ftp://ftp.ensembl.org/pub/release-101/fasta/caenorhabditis_elegans/cdna/Caenorhabditis_elegans.WBcel235.cdna.all.fa.gz
+Use the wget command with this link:  `ftp://ftp.ensembl.org/pub/release-101/fasta/caenorhabditis_elegans/cdna/Caenorhabditis_elegans.WBcel235.cdna.all.fa.gz`
 
 Create an index using the **Transcriptome_index.sh** script
 
@@ -88,7 +89,11 @@ BiocManager::install("limma")
 devtools::install_github("LBMC/RAPToR", build_vignettes = TRUE) devtools::install_github("LBMC/wormRef")
 ```
 
-read vignette : vignette("RAPToR")
+read vignette : 
+
+````
+vignette("RAPToR")
+````
 
 ### Compare multiqc report on subset and on complete set (Hors série): 
-mettre les deux rapports multi QC
+Mettre les deux rapports multi QC
