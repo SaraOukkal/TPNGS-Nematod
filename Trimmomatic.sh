@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ##Create variables for the data set and the adapters: 
-data="/home/rstudio/data/mydatalocal/data/sra_data_test"
+data="/home/rstudio/data/mydatalocal/data/sra_data"
 adapter="/home/rstudio/data/mydatalocal/TPNGS-Nematod/Adapter_sequences.fa"
 
 ##Create directories for the output files (separate paired and unpaired):
@@ -43,5 +43,5 @@ java -jar $TRIMMOMATIC_JAR PE -phred33 $input_1 $input_2 $output_1_paired \
   LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 
 end=$SECONDS
 Time=$(((end - start)/60))
-echo "$file $Time" >> $time_files/time_trimmomatic_test.txt
+echo "$file $Time" >> $time_files/time_trimmomatic.txt
 done
