@@ -44,7 +44,7 @@ I used **Multiqc.sh** (on Fastqc directory output, one report for all samples). 
 ```{bash, eval=FALSE}
 multiqc $data/* -o . 
 ```
-\newline
+
 
 ### 3) Results: 
 
