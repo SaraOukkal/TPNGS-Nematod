@@ -8,22 +8,37 @@ output:
 README NGS project.
 
 ## Introduction: 
-*Ajouter background biologique*
+Argonauts are a proteins family involved in gene silencing, they recruit miRNAs which are small RNAs used as guides to find the target RNA and destroy it. 
+
+C.elegans has 25 different Argonaute proteines, these interact with various miRNAs. 
+
+*Brown et al. 2017* generated mutants of several Argonaute proteins and sequenced their transcriptomes to compare them to the wild type. 
+
+Nevertheless, *C. elegans* being a fast developing organism, individuals from a sample can have various ages. Therefore there is an impact of the development stage in the variation observed between strains. A cutting edge tool will be used to assess the degree of impact of development on the results. 
+
+## Software:
+
+### OS
+Ubuntu 20.04 LTS.
+
+### Tools: 
+- sratoolkit.2.10.0 
+- FastQC v0.11.8
+- MultiQC 1.9
+- Trimmomatic O.39
+- Salmon 0.14.1
+- RAPToR 1.1.4
 
 ## RNA-seq data download: 
 
-Link to the data: `https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE98935`
+Link to the data (Geo database, accession code: GSE98935) `https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE98935`
 
 Strains (Subset of the article's data): WT, alg-2(ok304) II (Argonaute 2 mutant) and alg-5(ram2) I (Argonaute 5 mutant). 
 There are 3 replicates of each strain. 
 
-I downloaded the data using the **Download_data.sh** script. Principal command: 
+Data was downloaded using the **Download_data.sh** script. Using the fastq-dump command. 
 
-```{bash, eval=FALSE}
-fastq-dump --split-3 --gzip --defline-seq '@$ac_$si/$ri' --defline-qual "+" $i
-```
-
-I changed the fasta def lines (defline-seq and defline-qual): 
+Fasta def lines were changed (defline-seq and defline-qual): 
 
 - The sequence defline contain: The accession number, the spot id and the read number 
 
@@ -32,25 +47,24 @@ I changed the fasta def lines (defline-seq and defline-qual):
 ## Control the reads quality:
 
 ### 1) Fastqc analysis:
-I used **Fastqc.sh** (one report per sample). Principal command: 
+We used **Fastqc.sh** (one report per sample). Principal command: 
 
 ```{bash, eval=FALSE}
 fastqc $file -o . -t 6
 ```
 
 ### 2) Multiqc analysis:
-I used **Multiqc.sh** (on Fastqc directory output, one report for all samples). Principal command: 
+We used **Multiqc.sh** (on Fastqc directory output, one report for all samples). Principal command: 
 
 ```{bash, eval=FALSE}
 multiqc $data/* -o . 
 ```
 
-
 ### 3) Results: 
 
-Adapters sequences are present in our reads, that's why in the next step I will remove them. 
+Adapters sequences are present in our reads, that's why in the next step we will remove them. 
 
-*Ajouter captures du rapport multiqc*
+![multiQC report after Trimmomatic](Figures/MultiQC_data.png)
 
 ## Remove adapters from reads: 
 
@@ -58,13 +72,13 @@ Adapters sequences are present in our reads, that's why in the next step I will 
 
 Adapters' sequences were found in the supplementary data of Brown *et al*, 2017.
 
-I generated reverse complement sequences using the online tool: `http://reverse-complement.com/`
+We generated reverse complement sequences using the online tool: `http://reverse-complement.com/`
 
-I wrote the sequences on a Fasta file: **Adapter_sequences.fa**
+Sequences were written on a Fasta file: **Adapter_sequences.fa**
 
 ### 2) Use Trimmomatic to remove adapters:
 
-I used **Trimmomatic.sh**. Principal command: 
+We used **Trimmomatic.sh**. Principal command: 
 
 ```{bash, eval=FALSE}
 java -jar $TRIMMOMATIC_JAR PE -phred33 $input_1 $input_2 $output_1_paired \
@@ -74,28 +88,28 @@ java -jar $TRIMMOMATIC_JAR PE -phred33 $input_1 $input_2 $output_1_paired \
 
 ILLUMINACLIP remove adapters, LEADING remove leading low quality bases, TRAILING remove trailing low quality bases, SLIDINGWINDOW scan the read with a 4-base sliding window and cut when the average quality per base drops below 15. 
 
-Trimmomatic generate two types of outputs, paired sequences (R1+R2) and unpaired sequences (R1 or R2 alone). For the rest of the analysis we only keep paired sequences.
+Trimmomatic generate two types of outputs, paired sequences (R1+R2) and unpaired sequences (R1 or R2 alone). For the rest of the analysis we will only keep paired sequences.
 
 ### 3) Control the reads quality after trimming:
 
 I combined the two scripts of **Fastqc.sh** and **Multiqc.sh** to form the **Control_qual_trim.sh**.
 We see on the Multiqc report that there are no (or almost no) more adapters , and that the read lengths are not as homogeneous as before. 
 
-*Ajouter captures du rapport multiQC*
+![multiQC report after Trimmomatic](Figures/MultiQC_data_after_trim.png)
 
 ## Transcript expression quantification: 
 
 ### 1) Get the reference transcriptome:
 
-Download the reference transcriptome of *C.elegans*: `https://www.ensembl.org/info/data/ftp/index.html`
+The reference transcriptome of *C.elegans* was downloaded: `https://www.ensembl.org/info/data/ftp/index.html`
 
-Use the wget command with this link:  `ftp://ftp.ensembl.org/pub/release-101/fasta/caenorhabditis_elegans/cdna/Caenorhabditis_elegans.WBcel235.cdna.all.fa.gz`
+We used the wget command with this link:  `ftp://ftp.ensembl.org/pub/release-101/fasta/caenorhabditis_elegans/cdna/Caenorhabditis_elegans.WBcel235.cdna.all.fa.gz`
 
 Create an index using the **Transcriptome_index.sh** script
 
 ### 2) Run Salmon analysis: 
 
-Use Salmon to quantify the expression of transcripts in each sample:
+We used Salmon to quantify the expression of transcripts in each sample:
 
 Run salmon on experimental data using **Salmon.sh**. Principal command: 
 
@@ -106,9 +120,13 @@ salmon quant -i $data/index_transcriptome -l A \
          -p 8 --validateMappings -o $quants/${name}_quant
 ```
 
+-l is for the library type. 
+-p is the number of threads that will be used for quasi mapping, quantification and bootstrapping. 
+--validateMapping use a more sensitive and accurate mapping algorithm and run an extension alignment dynamic program on the potential mappings it produces.
+
 ### 3) Generate a Multiqc report with Salmon output data: 
 
-Use the **Multiqc_after_salmon.sh** script. 
+We used the **Multiqc_after_salmon.sh** script. 
 
 *Ajouter captures du rapport multiqc*
 
@@ -126,6 +144,3 @@ read vignette :
 ```R
 vignette("RAPToR")
 ```
-
-## Compare multiqc report on subset and on complete set (Hors série): 
-*Mettre les deux rapports multiQC*
