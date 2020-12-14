@@ -64,7 +64,7 @@ multiqc $data/* -o .
 
 Adapters sequences are present in our reads, that's why in the next step we will remove them. 
 
-![multiQC report after Trimmomatic](Figures/MultiQC_data.png)
+![multiQC report on raw RNA-seq data](Figures/MultiQC_data.png)
 
 ## Remove adapters from reads: 
 
