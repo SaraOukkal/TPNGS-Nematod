@@ -130,6 +130,19 @@ We used the **Multiqc_after_salmon.sh** script.
 
 *Ajouter captures du rapport multiqc*
 
+## Differential expression analyses: 
+
+### Import data:
+
+We used tximport to import Salmon quantifications, it creates a matrix with abundance, counts and transcript length. 
+After that, we put the matrix in a R object, so it's possible to load the object for future use. 
+
+The script is: **Tximport.R**
+
+### Differential expression analysis: 
+
+We use counts data with DESeq. 
+
 ## Evaluate the impact of development: 
 
 ### 1) Install RAPTOR and wormRef on R: 
@@ -144,3 +157,7 @@ read vignette :
 ```R
 vignette("RAPToR")
 ```
+
+## RAPToR: 
+We use RAPToR with abundance data, transcripts per million (TPM)
+
