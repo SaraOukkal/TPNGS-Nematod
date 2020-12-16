@@ -130,18 +130,54 @@ We used the **Multiqc_after_salmon.sh** script.
 
 *Ajouter captures du rapport multiqc*
 
-## Differential expression analyses: 
-
-### Import data:
+## Import data:
 
 We used tximport to import Salmon quantifications, it creates a matrix with abundance, counts and transcript length. 
 After that, we put the matrix in a R object, so it's possible to load the object for future use. 
 
 The script is: **Tximport.R**
 
-### Differential expression analysis: 
+## Differential expression analyses: 
 
+### 1) Run DESeq: 
+DESeq runs a statistical test on gene expression between WT and mutants. 
+First we estimate the variance from the replicates of each condition. 
 We use counts data with DESeq. 
+
+We adapted the matrix to DESeq and set pvalue to 0.05 (as done in the paper). 
+
+The WT dataset is the reference, if the Log2 FoldChange is >0 then the genes are upregulated in the mutant. If Log2 FoldChange is <0 then the genes are downregulated in the mutant. 
+
+![Alg2 mutant vs WT](Figures/DEA_Alg2.png){width=60%}
+
+![Alg5 mutant vs WT](Figures/DEA_Alg5.png){width=60%}
+
+### 2) Gene ontology enrichment: 
+We used wormbase enrichment tool to assess the enrichment of mutants upregulated and downregulated genes. 
+
+#### 1- alg2 mutant: 
+
+Upregulated genes: 
+
+![Alg2 Upregulated genes](Figures/Alg2_UR_table.png){width=60%}
+![Alg2 Upregulated genes](Figures/Alg2_UR_plot.png){width=60%}
+
+Downregulated genes: 
+
+![Alg2 Downregulated genes](Figures/Alg2_DR_table.png){width=60%}
+![Alg2 Downregulated genes](Figures/Alg2_DR_plot.png){width=60%}
+
+#### 2- alg5 mutant: 
+
+Upregulated genes: 
+
+![Alg5 Upregulated genes](Figures/Alg5_UR_table.png){width=60%}
+![Alg5 Upregulated genes](Figures/Alg5_UR_plot.png){width=60%}
+
+Downregulated genes: 
+
+![Alg5 Downregulated genes](Figures/Alg5_DR_table.png){width=60%}
+![Alg5 Downregulated genes](Figures/Alg5_DR_plot.png){width=60%}
 
 ## Evaluate the impact of development: 
 
@@ -152,12 +188,11 @@ BiocManager::install("limma")
 devtools::install_github("LBMC/RAPToR", build_vignettes = TRUE) devtools::install_github("LBMC/wormRef")
 ```
 
-read vignette : 
+### 2) Load wormref: 
+We choose: **cell larval to Young Adult** as the right wormRef dataset because our samples are at L4 stage and this dataset covers it. 
+We used 500 as the resolution of the interpolated reference. 
 
-```R
-vignette("RAPToR")
-```
+### 3) Run RAPToR: 
+We used RAPToR with abundance data, transcripts per million (TPM). 
 
-## RAPToR: 
-We use RAPToR with abundance data, transcripts per million (TPM)
-
+![Estimated age of each condition](Figures/Estimated_age.png){width=60%}
