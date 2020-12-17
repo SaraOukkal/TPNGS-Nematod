@@ -13,7 +13,7 @@ Argonauts are a proteins family involved in gene silencing, they recruit miRNAs 
 
 C.elegans has 25 different Argonaute proteines, these interact with various miRNAs. 
 
-*Brown et al. 2017* generated mutants of several Argonaute proteins and sequenced their transcriptomes to compare them to the wild type. 
+*Brown et al. 2017* generated mutants of several Argonaute proteins (*alg-1*, *alg-2*, *alg-5*) and sequenced their transcriptomes to compare them to the wild type. 
 
 Nevertheless, *C. elegans* being a fast developing organism, individuals from a sample can have various ages. Therefore there is an impact of the development stage in the variation observed between strains. A cutting edge tool will be used to assess the degree of impact of development on the results. 
 
@@ -34,7 +34,7 @@ Ubuntu 20.04 LTS.
 
 Link to the data (Geo database, accession code: GSE98935) `https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE98935`
 
-Strains (Subset of the article's data): WT, alg-2(ok304) II (Argonaute 2 mutant) and alg-5(ram2) I (Argonaute 5 mutant). There are 3 replicates of each strain. 
+Strains (Subset of the article's data): WT, *alg-2(ok304) II* (Argonaute 2 mutant) and *alg-5(ram2) I* (Argonaute 5 mutant). There are 3 replicates of each strain. 
 
 Data was downloaded using the **Download_data.sh** script. Using the fastq-dump command. 
 
@@ -177,16 +177,16 @@ The WT dataset is the reference, if the Log2 FoldChange is >0 then the genes are
 
 We found: 
 
-- 1233 up regulated genes and 1621 down regulated genes in Alg2 mutant. 
+- 1233 up regulated genes and 1621 down regulated genes in *alg-2* mutant. 
 
-- 61 up regulated genes and 157 down regulated genes in Alg5 ram2 mutant.
+- 61 up regulated genes and 157 down regulated genes in *alg-5 ram2* mutant.
 
 We saved the differentially expressed gene names in csv files. 
 
 ### 2) Gene ontology enrichment: 
 We used wormbase enrichment tool to assess the enrichment of mutants upregulated and downregulated genes (qvalue = 0.05). `https://wormbase.org/tools/enrichment/tea/tea.cgi`
 
-#### 1- alg2 mutant: 
+#### 1- *alg2* mutant: 
 
 **Upregulated genes:** (The results differ from the article's, they used different tools, it's not surprising to see a variability) 
 
@@ -198,7 +198,7 @@ We used wormbase enrichment tool to assess the enrichment of mutants upregulated
 <img src="Figures/Alg2_DR_table.png" width="60%"/>
 <img src="Figures/Alg2_DR_plot.png" width="60%"/>
 
-#### 2- alg5 mutant: 
+#### 2- *alg5* mutant: 
 
 **Upregulated genes:** (No upregulated genes in the article)
 
@@ -282,11 +282,11 @@ rc <- refCompare(log1p_samp, ref_larv, ae_data, strain_groups)
 
 From the output we measured correlation coefficients: 
 
-- **Alg2 vs Ref for all genes:** 0.6105381
-- **Alg2 vs Ref for DE genes:** 0.7321606
+-  *alg-2* vs Ref for all genes: 0.6105381
+- *alg-2* vs Ref for DE genes: 0.7321606
   
-- **Alg5 vs Ref for all genes:** 0.09306767
-- **Alg5 vs Ref for DE genes:** 0.1953245
+- *alg-5* vs Ref for all genes: 0.09306767
+- *alg-5* vs Ref for DE genes: 0.1953245
 
 
 And we plotted the log1p Fold Change: 
