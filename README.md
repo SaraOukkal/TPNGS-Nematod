@@ -34,7 +34,7 @@ Ubuntu 20.04 LTS.
 
 Link to the data (Geo database, accession code: GSE98935) `https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE98935`
 
-Strains (Subset of the article's data): WT, *alg-2(ok304) II* (Argonaute 2 mutant) and *alg-5(ram2) I* (Argonaute 5 mutant). There are 3 replicates of each strain. 
+Strains (Subset of the article's data): WT, _alg-2(ok304) II_ (Argonaute 2 mutant) and _alg-5(ram2) I_ (Argonaute 5 mutant). There are 3 replicates of each strain. 
 
 Data was downloaded using the **Download_data.sh** script. Using the fastq-dump command. 
 
@@ -282,11 +282,11 @@ rc <- refCompare(log1p_samp, ref_larv, ae_data, strain_groups)
 
 From the output we measured correlation coefficients: 
 
--  *alg-2* vs Ref for all genes: 0.6105381
-- *alg-2* vs Ref for DE genes: 0.7321606
+-  ***alg-2*** **vs Ref for all genes:** 0.6105381
+- ***alg-2*** **vs Ref for DE genes:** 0.7321606
   
-- *alg-5* vs Ref for all genes: 0.09306767
-- *alg-5* vs Ref for DE genes: 0.1953245
+- ***alg-5*** **vs Ref for all genes:** 0.09306767
+- ***alg-5*** **vs Ref for DE genes:** 0.1953245
 
 
 And we plotted the log1p Fold Change: 
