@@ -12,9 +12,9 @@ salmon_matrix$pdata$strain <- factor(salmon_matrix$pdata$strain,
                         levels = c("WT", "alg-2(ok304) II", "alg-5(ram2) I")) #Convert strains into factors
 
 ##Run DESeq: 
-DESeq_data <- DESeqDataSetFromMatrix(countData = salmon_matrix$counts,
-                              colData = salmon_matrix$pdata,
-                              design= ~ strain)
+DESeq_data <- DESeqDataSetFromMatrix(countData = salmon_matrix$counts, #Counts data from tximport
+                              colData = salmon_matrix$pdata, #information about samples
+                              design= ~ strain) #Conditions 
 
 dds <- DESeq(DESeq_data)
 resultsNames(dds)

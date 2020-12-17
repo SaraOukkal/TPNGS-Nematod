@@ -49,14 +49,14 @@ Fasta def lines were changed (defline-seq and defline-qual):
 ### 1) Fastqc analysis:
 We used **Fastqc.sh** (one report per sample). Principal command: 
 
-```{bash, eval=FALSE}
+```bash
 fastqc $file -o . -t 6
 ```
 
 ### 2) Multiqc analysis:
 We used **Multiqc.sh** (on Fastqc directory output, one report for all samples). Principal command: 
 
-```{bash, eval=FALSE}
+```bash
 multiqc $data/* -o . 
 ```
 
@@ -80,7 +80,7 @@ Sequences were written on a Fasta file: **Adapter_sequences.fa**
 
 We used **Trimmomatic.sh**. Principal command: 
 
-```{bash, eval=FALSE}
+```bash
 java -jar $TRIMMOMATIC_JAR PE -phred33 $input_1 $input_2 $output_1_paired \
   $output_1_unpaired $output_2_paired $output_2_unpaired ILLUMINACLIP:$adapter:2:30:10\
   LEADING:3 TRAILING:3 SLIDINGWINDOW:4:15 
@@ -113,7 +113,7 @@ We used Salmon to quantify the expression of transcripts in each sample:
 
 Run salmon on experimental data using **Salmon.sh**. Principal command: 
 
-```{bash, eval=FALSE}
+```bash
 salmon quant -i $data/index_transcriptome -l A \
          -1 $input_1 \
          -2 $input_2 \
@@ -137,14 +137,29 @@ After that, we put the matrix in a R object, so it's possible to load the object
 
 The script is: **Tximport.R**
 
+```r 
+tx2gene = wormRef::Cel_genes[, c("transcript_name", "wb_id")] #load transcript IDs and Gene IDs from wormRef
+txi.salmon <- tximport(files, type = "salmon", tx2gene = tx2gene)
+```
+
 ## Differential expression analyses: 
 
 ### 1) Run DESeq: 
 DESeq runs a statistical test on gene expression between WT and mutants. 
 First we estimate the variance from the replicates of each condition. 
-We use counts data with DESeq. 
+We use counts data with DESeq and adapted the matrix as necessary for DESeq. 
 
-We adapted the matrix to DESeq and set pvalue to 0.05 (as done in the paper). 
+```r
+DESeq_data <- DESeqDataSetFromMatrix(countData = salmon_matrix$counts, #Counts data from tximport
+                              colData = salmon_matrix$pdata, #information about samples
+                              design= ~ strain) #Conditions 
+```
+
+We set the pvalue to 0.05 (as done in Brown *et al.* 2017). 
+
+```r
+res_alg2 <- results(dds, name="strain_alg.2.ok304..II_vs_WT", alpha=0.05)
+``` 
 
 The WT dataset is the reference, if the Log2 FoldChange is >0 then the genes are upregulated in the mutant. If Log2 FoldChange is <0 then the genes are downregulated in the mutant. 
 
@@ -152,29 +167,31 @@ The WT dataset is the reference, if the Log2 FoldChange is >0 then the genes are
 
 ![Alg5 mutant vs WT](Figures/DEA_Alg5.png){width=60%}
 
+We saved the differentially expressed gene names in csv files. 
+
 ### 2) Gene ontology enrichment: 
-We used wormbase enrichment tool to assess the enrichment of mutants upregulated and downregulated genes. 
+We used wormbase enrichment tool to assess the enrichment of mutants upregulated and downregulated genes. `https://wormbase.org/tools/enrichment/tea/tea.cgi`
 
 #### 1- alg2 mutant: 
 
-Upregulated genes: 
+Upregulated genes: (The results differ from the article's, they used different tools, it's not surprising to see a variability) 
 
 ![Alg2 Upregulated genes](Figures/Alg2_UR_table.png){width=60%}
 ![Alg2 Upregulated genes](Figures/Alg2_UR_plot.png){width=60%}
 
-Downregulated genes: 
+Downregulated genes: (Fit the article's results)
 
 ![Alg2 Downregulated genes](Figures/Alg2_DR_table.png){width=60%}
 ![Alg2 Downregulated genes](Figures/Alg2_DR_plot.png){width=60%}
 
 #### 2- alg5 mutant: 
 
-Upregulated genes: 
+Upregulated genes: (No upregulated genes in the article)
 
 ![Alg5 Upregulated genes](Figures/Alg5_UR_table.png){width=60%}
 ![Alg5 Upregulated genes](Figures/Alg5_UR_plot.png){width=60%}
 
-Downregulated genes: 
+Downregulated genes: (Fit the article's results)
 
 ![Alg5 Downregulated genes](Figures/Alg5_DR_table.png){width=60%}
 ![Alg5 Downregulated genes](Figures/Alg5_DR_plot.png){width=60%}
@@ -183,7 +200,7 @@ Downregulated genes:
 
 ### 1) Install RAPTOR and wormRef on R: 
 
-```Bash
+```r
 BiocManager::install("limma")
 devtools::install_github("LBMC/RAPToR", build_vignettes = TRUE) devtools::install_github("LBMC/wormRef")
 ```
@@ -192,7 +209,60 @@ devtools::install_github("LBMC/RAPToR", build_vignettes = TRUE) devtools::instal
 We choose: **cell larval to Young Adult** as the right wormRef dataset because our samples are at L4 stage and this dataset covers it. 
 We used 500 as the resolution of the interpolated reference. 
 
+```r 
+ref_larv <- prepare_refdata("Cel_larv_YA", "wormRef", n.inter = 500) 
+```
+
 ### 3) Run RAPToR: 
 We used RAPToR with abundance data, transcripts per million (TPM). 
 
+```r
+ae_data <- ae(samp = salmon_matrix$tpm,                         #input gene expression matrix
+                          refdata = ref_larv$interpGE,            #interpolated gene expression
+                          ref.time_series = ref_larv$time.series) #Reference time series  
+````
+
 ![Estimated age of each condition](Figures/Estimated_age.png){width=60%}
+
+### Quantify the impact of development for each strain: 
+
+We used two functions for that: 
+- One to get the indices/GExpr of the reference matching sample age estimates. 
+
+```r
+getrefTP <- function(ref, ae_obj, ret.idx = T){
+  idx <- sapply(ae_obj$age.estimates[,1], function(t) which.min(abs(ref$time.series - t)))
+  if(ret.idx)
+    return(idx) 
+  return(ref$interpGE[,idx])}
+``` 
+
+- And then one to compute the reference changes and the observed changes by a linear model (samples input: log1p)
+
+```r
+refCompare <- function(samp, ref, ae_obj, fac){
+  ovl <- format_to_ref(samp, getrefTP(ref_larv, ae_data, ret.idx = F))
+  lm_samp <- lm(t(ovl$samp)~fac)
+  lm_ref <- lm(t(ovl$ref)~fac) #Operates a statistical test, but we only keep the log2 fold change.
+  return(list(samp=lm_samp, ref=lm_ref, ovl_genelist=ovl$inter.genes)) }
+
+log1p_samp <- log1p(salmon_matrix$tpm)
+
+rc <- refCompare(log1p_samp, ref_larv, ae_data, strain_groups)
+```
+
+From the output we measured correlation coefficients: 
+
+- **Alg2 vs Ref for all genes:** 0.6105381
+- **Alg2 vs Ref for DE genes:** 0.7321606
+  
+- **Alg5 vs Ref for all genes:** 0.09306767
+- **Alg5 vs Ref for DE genes:** 0.1953245
+
+
+And we plotted the log1p Fold Change: 
+
+![Alg2 vs Ref log1p Fold Change](Figures/Alg2_Ref.png){width=60%}
+
+![Alg5 vs Ref log1p Fold Change](Figures/Alg5_Ref.png){width=60%}
+
