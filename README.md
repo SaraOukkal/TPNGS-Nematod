@@ -28,7 +28,11 @@ Ubuntu 20.04 LTS.
 - MultiQC 1.9
 - Trimmomatic O.39
 - Salmon 0.14.1
+- tximport 1.18.0
+- limma version 3.46.0
+- DESeq2 version 1.30.0
 - RAPToR 1.1.4
+- wormRef version 0.4.0
 
 ## RNA-seq data download: 
 
